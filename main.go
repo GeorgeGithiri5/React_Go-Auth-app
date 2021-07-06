@@ -1,24 +1,23 @@
 package main
 
 import (
+	"./database"
+	"./routes"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
-	dsn := "root:@tcp(127.0.0.1:3306)/react_go?charset=utf8mb4&parseTime=True&loc=Local"
-	_, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	if err != nil {
-		panic("could not connect to the database")
-	}
+	database.Connect()
 
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	app.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+	}))
+
+	routes.Setup(app)
 
 	app.Listen(":8000")
 }
